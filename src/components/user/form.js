@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import firebase from "../../utils/firebase";
+import firebase, { usersCollection } from "../../utils/firebase";
 
 class LoginForm extends Component {
   
   state = {
-    register: false,
+    register: true,
     user: {
       email: '',
       password: ''
@@ -20,6 +20,7 @@ class LoginForm extends Component {
       ///register
       firebase.auth().createUserWithEmailAndPassword(email, password)
         .then(response => {
+          this.handleStoreRegisterUser(response);
         console.log(response)
         }).catch(e => {
           console.log(e);
@@ -77,6 +78,37 @@ class LoginForm extends Component {
     }
   }
 
+  handleUpdateProfile = () => {
+    let getUser = firebase.auth().currentUser;
+    getUser.updateProfile({
+      displayName: "jobs",
+      photoURL:"https://aaa.com/photo.jpg"
+    }).then(() => {
+      console.log(getUser);
+    })
+  }
+
+  handleGoogleSignin = () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider)
+      .then((result) => {
+        console.log(result)
+       })
+      .catch((e) => {
+        console.log(e)
+      })
+  }
+
+  handleStoreRegisterUser = (data) => {
+    usersCollection.doc(data.user.uid).set({
+      email:data.user.email
+    }).then(data => {
+      console.log(data);
+    }).catch(e => {
+      console.log(e);
+    })
+  }
+
   render() {
     return (
       <div>
@@ -98,7 +130,11 @@ class LoginForm extends Component {
         <hr />
         <button onClick={() => this.handleGetUserInfo()}>Ask about the user</button>
         <hr />
-        <button onClick={()=>this.handleUpdateEmail()}>Update user email</button>
+        <button onClick={() => this.handleUpdateEmail()}>Update user email</button>
+        <hr />
+        <button onClick={() => this.handleUpdateProfile()}>Update user profile</button>
+        <hr />
+        <button onClick={()=>this.handleGoogleSignin()}>Google signin</button>
       </div>
     )
   }
