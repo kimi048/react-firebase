@@ -10,3 +10,11 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    console.log(user.email);
+    console.log(user.uid);
+  } else {
+    console.log("no user");
+  }
+})
