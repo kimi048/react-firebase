@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { usersRef } from '../../utils/firebase';
+import firebase, { usersRef,usersCollection } from '../../utils/firebase';
 
 class Upload extends Component {
   constructor(props) {
@@ -10,19 +10,44 @@ class Upload extends Component {
 
     
     this.state = {
-    image: null,
-    url: '',
-    progress: 0
-  }
+      image: null,
+      url: '',
+      progress: 0
+    }
 
   }
-  
+  componentDidMount() {
+    const imageRef = usersRef.child('Screen Shot 2021-12-07 at 1.55.58.png');
+    imageRef.getDownloadURL()
+      .then(downloadURL => {
+        console.log("FILE AVAILABLE AT:", downloadURL)
+      }).catch(e => {
+        console.log(e);
+        switch (e.code) {
+          case "storage/object-not-found":
+            console.log("sorry image not found");
+            break;
+          default:
+            console.log("error by default");
+            break;
+        }
+      });
+    imageRef.getMetadata().then(data => {
+      console.log(data);
+    }).catch(e => console.log(e));
+  }
 
   handleUpload = (e) => {
     e.preventDefault();
     console.log(this.state);
     const { image } = this.state;
-    const uploadTask = usersRef.child(`${image.name}`).put(image);
+    const metadata = {
+      customMetadata: {
+        hello:'its me!'
+      }
+    }
+
+    const uploadTask = usersRef.child(`${image.name}`).put(image,metadata);
 
     uploadTask.on('state_changed',
       (snapshot) => {
@@ -54,7 +79,15 @@ class Upload extends Component {
         this.setState({ progress: 0 });
       },
       () => {
-        console.log("completed!!");
+        console.log(uploadTask.snapshot.ref);
+
+        uploadTask.snapshot.ref.getDownloadURL()
+          .then(downloadURL => console.log(downloadURL))
+        
+        let getUser = firebase.auth().currentUser;
+        usersCollection.doc(getUser.uid).update({
+          image:uploadTask.snapshot.ref.name
+        });
       }
     );
 
