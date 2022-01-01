@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import firebase, { usersRef,usersCollection } from '../../utils/firebase';
+import firebase, { usersRef, usersCollection } from '../../utils/firebase';
+import ListUploads from './list';
+
 
 class Upload extends Component {
   constructor(props) {
@@ -140,6 +142,8 @@ class Upload extends Component {
         <div className='form-group'>
           <button className='btn btn-primary' ref={this.cancelRef}>Cancel</button>
         </div>
+        <hr/>
+        <ListUploads/>
       </div>
     )
   }
