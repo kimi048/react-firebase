@@ -112,7 +112,9 @@ class LoginForm extends Component {
   handleCallableFunction = () => {
     console.log("trigger function");
     const addLog = functions.httpsCallable('addLog');
-    addLog().then(res => {
+    addLog({
+      message:"hello this is a new message"
+    }).then(res => {
       console.log(res)
     })
   }

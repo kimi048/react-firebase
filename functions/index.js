@@ -2,7 +2,9 @@ const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 
 
-admin.initializeApp(functions.config().firebase);
+// admin.initializeApp(functions.config().firebase);
+admin.initializeApp();
+
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
@@ -36,6 +38,13 @@ exports.addDate = functions.region('asia-northeast1').firestore.document("contac
   })
 
 
-exports.addLog = functions.region('asia-northeast1').https.onCall((data, context) => {
-  return "log added";
+exports.addLog = functions.region('asia-northeast1').https.onCall(async(data, context) => {
+  const log = {
+    message: data.message,
+    time: admin.firestore.FieldValue.serverTimestamp()
+  };
+  const addLog = await admin.firestore().collection("logs").add(log);
+
+
+  return `result:${addLog.id}`;
 })
